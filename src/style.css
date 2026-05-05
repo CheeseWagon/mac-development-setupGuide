@@ -608,6 +608,11 @@ html {
   color: #1e40af;
 }
 
+/* Offset all anchor targets below the sticky header */
+[id] {
+  scroll-margin-top: 80px;
+}
+
 /* Phase Anchor Links */
 .phase-num-link {
   text-decoration: none;
