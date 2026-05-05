@@ -18,10 +18,14 @@ const router = createRouter({
   ],
   scrollBehavior(to, from, savedPosition) {
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: 'smooth'
-      }
+      // Delay gives the incoming route's component time to mount on mobile
+      // before we attempt to scroll to the anchor element
+      const delay = to.path !== from.path ? 400 : 0
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ el: to.hash, behavior: 'smooth' })
+        }, delay)
+      })
     }
     if (savedPosition) {
       return savedPosition
