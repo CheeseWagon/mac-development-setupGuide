@@ -15,6 +15,7 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
 }
 
 /* Container */
@@ -608,9 +609,29 @@ html {
   color: #1e40af;
 }
 
-/* Offset all anchor targets below the sticky header */
+/* Offset all anchor targets below the sticky header — desktop */
 [id] {
   scroll-margin-top: 80px;
+}
+
+/* iPad (portrait and landscape) */
+@media (max-width: 1024px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+  [id] {
+    scroll-margin-top: 72px;
+  }
+}
+
+/* iPhone */
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 68px;
+  }
+  [id] {
+    scroll-margin-top: 68px;
+  }
 }
 
 /* Phase Anchor Links */
