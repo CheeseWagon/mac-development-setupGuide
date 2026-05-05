@@ -335,6 +335,16 @@ html {
   padding: 2rem 0;
 }
 
+.footer-links {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.footer-sep {
+  margin: 0 0.75rem;
+  color: #4b5563;
+}
+
 .footer a {
   color: #9ca3af;
   transition: color 0.2s;

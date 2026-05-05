@@ -528,6 +528,90 @@ export const setupPhases = [
         tip: "The <code>azure/login@v2</code> action supports OpenID Connect (OIDC) federated credentials — a more secure alternative to storing the service principal JSON as a secret. See the <em>azure/login</em> docs for the OIDC setup, which eliminates the need for <code>AZURE_CREDENTIALS</code> entirely."
       }
     ]
+  },
+  {
+    phase: 11,
+    title: "Azure Development Workflow",
+    steps: [
+      {
+        title: "Install Azure Developer Tools",
+        description: "Three tools cover nearly all local Azure development needs. <strong>Azure Functions Core Tools</strong> lets you run and debug Azure Functions entirely offline. <strong>Azure Developer CLI (<code>azd</code>)</strong> scaffolds full-stack Azure architectures and handles provisioning + deployment in one command. <strong>Azurite</strong> is a local emulator for Azure Storage (Blob, Queue, Table) so you never need a real storage account during development.",
+        code: "# Azure Functions Core Tools v4\nbrew tap azure/functions\nbrew install azure-functions-core-tools@4\n\n# Azure Developer CLI (azd)\nbrew tap azure/azd && brew install azd\nazd version   # verify\n\n# Azurite — local Azure Storage emulator\nnpm install -g azurite\nazurite --version   # verify\n\n# Start Azurite in a terminal (keep running while developing)\nazurite --location ~/.azurite --debug ~/.azurite/debug.log",
+        links: [
+          { label: "Azure Functions Core Tools Docs", url: "https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local" },
+          { label: "Azure Developer CLI (azd) Docs", url: "https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview" },
+          { label: "Azurite Storage Emulator", url: "https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite" }
+        ],
+        tip: "Run <code>azd auth login</code> once after installing — it authenticates <code>azd</code> separately from <code>az</code>. Both CLIs are needed for different workflows: <code>az</code> for fine-grained resource management, <code>azd</code> for full lifecycle (provision + deploy + monitor)."
+      },
+      {
+        title: "Install Azure VS Code Extensions",
+        description: "The Azure extension pack gives VS Code first-class support for deploying, debugging, and monitoring Azure resources without leaving the editor. The <strong>Azure Resources</strong> extension shows all your subscriptions and resources in the sidebar. The <strong>Azurite</strong> extension starts the local storage emulator with one click.",
+        code: "# Install all essential Azure extensions at once\ncode --install-extension ms-azuretools.vscode-azurefunctions\ncode --install-extension ms-azuretools.vscode-azureresourcegroups\ncode --install-extension ms-azuretools.vscode-azurestorage\ncode --install-extension ms-azuretools.vscode-cosmosdb\ncode --install-extension Azurite.azurite\ncode --install-extension ms-dotnettools.csdevkit\n\n# Verify installed extensions\ncode --list-extensions | grep ms-azuretools",
+        links: [
+          { label: "Azure Tools Extension Pack", url: "https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack" },
+          { label: "Azure Functions Extension", url: "https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions" },
+          { label: "C# Dev Kit Extension", url: "https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit" }
+        ],
+        tip: "The <strong>C# Dev Kit</strong> extension brings Visual Studio–style Solution Explorer to VS Code — you can load a <code>.sln</code> file containing all 60 projects exactly as you would in Visual Studio 2022 on Windows. Each project appears in the sidebar with full IntelliSense and a <em>Run / Debug</em> button per project."
+      },
+      {
+        title: "Add Azure SDK NuGet Packages (.NET)",
+        description: "The Azure SDK for .NET follows a consistent pattern: each service has its own NuGet package under the <code>Azure.*</code> namespace, and they all share <code>Azure.Identity</code> for authentication. You never store connection strings in code — <code>DefaultAzureCredential</code> automatically picks up the right credential based on the environment (local dev → your <code>az login</code> account; production → Managed Identity).",
+        code: "# Inside your .NET project directory\n# Core identity package — add to EVERY Azure project\ndotnet add package Azure.Identity\n\n# Pick the services you need\ndotnet add package Azure.Storage.Blobs\ndotnet add package Azure.Storage.Queues\ndotnet add package Azure.Security.KeyVault.Secrets\ndotnet add package Azure.AI.OpenAI\ndotnet add package Azure.Messaging.ServiceBus\ndotnet add package Microsoft.Extensions.Azure   # DI integration\n\n# Restore and build to confirm no version conflicts\ndotnet restore && dotnet build",
+        links: [
+          { label: "Azure SDK for .NET Overview", url: "https://learn.microsoft.com/en-us/dotnet/azure/sdk/azure-sdk-for-dotnet" },
+          { label: "Azure.Identity Package", url: "https://learn.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme" },
+          { label: "Microsoft.Extensions.Azure DI Integration", url: "https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection" }
+        ],
+        tip: "Use <code>Microsoft.Extensions.Azure</code> to register clients in your DI container: <code>builder.Services.AddAzureClients(b =&gt; b.AddBlobServiceClient(config[\"AzureStorage:Url\"]));</code>. This is the recommended pattern for ASP.NET Core Web APIs and Console Apps that target the same services you'd use from Visual Studio on Windows."
+      },
+      {
+        title: "Add Azure SDK Packages (Python)",
+        description: "The Azure SDK for Python mirrors the .NET SDK's structure — one package per service, all sharing <code>azure-identity</code> for passwordless authentication. This is essential if you do any Python scripting for Azure automation, data pipelines, or AI workloads.",
+        code: "# Activate your conda or venv environment first\nconda activate myenv   # or: source .venv/bin/activate\n\n# Core identity — always required\npip install azure-identity\n\n# Common service packages\npip install azure-storage-blob\npip install azure-storage-queue\npip install azure-keyvault-secrets\npip install azure-ai-openai\npip install azure-servicebus\npip install azure-mgmt-resource   # for ARM/resource management\n\n# Pin versions for reproducibility\npip freeze > requirements.txt",
+        links: [
+          { label: "Azure SDK for Python Overview", url: "https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-overview" },
+          { label: "azure-identity Package", url: "https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme" },
+          { label: "Azure Storage Blob Python Quickstart", url: "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python" }
+        ],
+        tip: "Run <code>az login</code> once in your terminal before running any Python scripts locally. <code>DefaultAzureCredential</code> will automatically use your active <code>az</code> session — no environment variables, no secrets files needed during development."
+      },
+      {
+        title: "Passwordless Authentication with DefaultAzureCredential",
+        description: "<code>DefaultAzureCredential</code> is the single most important pattern to learn in Azure development. It tries a chain of credential sources in order: environment variables → workload identity → Managed Identity → Visual Studio Code → Azure CLI → Azure PowerShell. On your Mac during development it falls through to your <code>az login</code> session. In production on Azure it uses Managed Identity automatically — so the exact same code works in both environments with zero changes.",
+        code: "// --- .NET Example ---\nusing Azure.Identity;\nusing Azure.Storage.Blobs;\n\n// Works locally (uses `az login`) and in Azure (uses Managed Identity)\nvar credential = new DefaultAzureCredential();\nvar blobClient = new BlobServiceClient(\n    new Uri(\"https://YOURACCOUNT.blob.core.windows.net\"),\n    credential);\n\n// --- Python Example ---\nfrom azure.identity import DefaultAzureCredential\nfrom azure.storage.blob import BlobServiceClient\n\ncredential = DefaultAzureCredential()\nblob_client = BlobServiceClient(\n    account_url=\"https://YOURACCOUNT.blob.core.windows.net\",\n    credential=credential\n)\n\n# --- Key Vault Example (.NET) ---\nusing Azure.Security.KeyVault.Secrets;\n\nvar secretClient = new SecretClient(\n    new Uri(\"https://YOUR-VAULT.vault.azure.net/\"),\n    new DefaultAzureCredential());\nKeyVaultSecret secret = await secretClient.GetSecretAsync(\"MySecret\");",
+        links: [
+          { label: "DefaultAzureCredential Overview", url: "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains" },
+          { label: "Passwordless Connections for Azure Services", url: "https://learn.microsoft.com/en-us/azure/developer/intro/passwordless-overview" },
+          { label: "Managed Identity Overview", url: "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview" }
+        ],
+        tip: "Never put connection strings or storage keys in <code>appsettings.json</code> or environment variables for Azure services — use <code>DefaultAzureCredential</code> everywhere. Assign yourself the <strong>Storage Blob Data Contributor</strong> role on the storage account via the Azure portal (IAM → Add role assignment) so your local <code>az login</code> session has permission to read/write blobs."
+      },
+      {
+        title: "Local Azure Functions Development",
+        description: "Azure Functions Core Tools lets you create, run, and publish Azure Functions entirely from the terminal. The local development loop is: <code>func init</code> → write code → <code>func start</code> → test via HTTP or trigger → <code>func azure functionapp publish</code>. VS Code's Azure Functions extension adds GUI buttons for each of these steps and auto-attaches the debugger.",
+        code: "# Create a new Functions project (choose dotnet-isolated or python)\nfunc init MyFunctionApp --worker-runtime dotnet-isolated\ncd MyFunctionApp\n\n# Scaffold a new function (HTTP trigger example)\nfunc new --name HttpExample --template \"HTTP trigger\" --authlevel anonymous\n\n# Start the local Functions host (hot-reloads on file save)\nfunc start\n# → Functions running at: http://localhost:7071/api/HttpExample\n\n# Test it\ncurl http://localhost:7071/api/HttpExample?name=World\n\n# Deploy to an existing Function App in Azure\nfunc azure functionapp publish YOUR_FUNCTION_APP_NAME\n\n# View live streaming logs after deploy\nfunc azure functionapp logstream YOUR_FUNCTION_APP_NAME",
+        links: [
+          { label: "Azure Functions Local Development", url: "https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local" },
+          { label: "Develop Functions Using VS Code", url: "https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-vs-code" },
+          { label: "Azure Functions .NET Isolated Worker", url: "https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide" }
+        ],
+        tip: "For projects with many services, use <code>local.settings.json</code> (git-ignored by the Functions template) to store local connection strings — point blob triggers and queue triggers at <code>UseDevelopmentStorage=true</code> to use Azurite instead of a real Azure Storage account. This gives you a fully offline development loop."
+      },
+      {
+        title: "Azure OpenAI Service (Local Setup)",
+        description: "Azure OpenAI Service provides the same GPT-4, GPT-4o, and Embeddings models as OpenAI, but hosted inside your Azure tenant with enterprise security controls. You interact with it using the <code>Azure.AI.OpenAI</code> (.NET) or <code>openai</code> (Python) package pointed at your Azure endpoint. Store the endpoint and deployment name in Key Vault or environment variables — never hardcode them.",
+        code: "// --- .NET Setup ---\n// 1. dotnet add package Azure.AI.OpenAI\nusing Azure;\nusing Azure.AI.OpenAI;\nusing Azure.Identity;\n\n// Passwordless auth using your az login session\nAzureOpenAIClient client = new(\n    new Uri(\"https://YOUR-RESOURCE.openai.azure.com/\"),\n    new DefaultAzureCredential());\n\nChatClient chatClient = client.GetChatClient(\"gpt-4o\"); // your deployment name\nChatCompletion completion = await chatClient.CompleteChatAsync(\n    [new UserChatMessage(\"Hello, summarize this for a developer.\")]\n);\nConsole.WriteLine(completion.Content[0].Text);\n\n# --- Python Setup ---\n# pip install openai azure-identity\nimport os\nfrom openai import AzureOpenAI\nfrom azure.identity import DefaultAzureCredential, get_bearer_token_provider\n\ntoken_provider = get_bearer_token_provider(\n    DefaultAzureCredential(),\n    \"https://cognitiveservices.azure.com/.default\"\n)\nclient = AzureOpenAI(\n    azure_endpoint=\"https://YOUR-RESOURCE.openai.azure.com/\",\n    azure_ad_token_provider=token_provider,\n    api_version=\"2024-12-01-preview\"\n)\nresponse = client.chat.completions.create(\n    model=\"gpt-4o\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello from Mac!\"}]\n)\nprint(response.choices[0].message.content)",
+        links: [
+          { label: "Azure OpenAI Service Quickstart", url: "https://learn.microsoft.com/en-us/azure/ai-services/openai/quickstart" },
+          { label: "Azure.AI.OpenAI .NET Package", url: "https://learn.microsoft.com/en-us/dotnet/api/overview/azure/ai.openai-readme" },
+          { label: "Authenticate to Azure OpenAI with Entra ID", url: "https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/managed-identity" },
+          { label: "Azure OpenAI Models and Deployments", url: "https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models" }
+        ],
+        tip: "Assign yourself the <strong>Cognitive Services OpenAI User</strong> role on your Azure OpenAI resource (portal → IAM → Add role assignment) to use <code>DefaultAzureCredential</code> locally. This avoids API keys entirely and matches how your production workloads should authenticate."
+      }
+    ]
   }
 ];
 
