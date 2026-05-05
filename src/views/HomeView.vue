@@ -9,8 +9,8 @@
           <router-link to="/guide" class="btn btn-primary">
             Start Setup Guide →
           </router-link>
-          <a href="#overview" class="btn btn-secondary">
-            View Overview ↓
+          <a href="#phases" class="btn btn-secondary">
+            Browse All Phases ↓
           </a>
         </div>
       </div>
@@ -74,6 +74,26 @@
       </div>
     </section>
 
+    <!-- Phases Overview Section -->
+    <section id="phases" class="section">
+      <div class="container">
+        <h2 class="section-title">Setup Phases</h2>
+        <p class="section-subtitle">11 phases to fully configure your Mac — click any phase to jump directly to those instructions.</p>
+        <div class="phases-overview-grid">
+          <router-link
+            v-for="phase in setupPhases"
+            :key="phase.phase"
+            :to="`/guide#phase-${phase.phase}`"
+            class="phase-overview-card"
+          >
+            <span class="phase-overview-num">{{ phase.phase }}</span>
+            <span class="phase-overview-title">{{ phase.title }}</span>
+            <span class="phase-overview-arrow">→</span>
+          </router-link>
+        </div>
+      </div>
+    </section>
+
     <!-- Prerequisites Section -->
     <section class="section">
       <div class="container">
@@ -98,9 +118,9 @@
           <router-link to="/guide" class="btn btn-primary">
             Start Full Guide →
           </router-link>
-          <a href="#verification" class="btn btn-secondary">
+          <router-link to="/guide#verification" class="btn btn-secondary">
             Verification Script ✓
-          </a>
+          </router-link>
         </div>
       </div>
     </section>
@@ -108,7 +128,12 @@
 </template>
 
 <script>
+import { setupPhases } from '@/data/setupGuide.js'
+
 export default {
-  name: 'HomeView'
+  name: 'HomeView',
+  data() {
+    return { setupPhases }
+  }
 }
 </script>

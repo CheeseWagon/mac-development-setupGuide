@@ -6,16 +6,18 @@
         <nav class="nav">
           <router-link to="/">Home</router-link>
           <router-link to="/guide">Full Guide</router-link>
-          <a href="#verification">Verification</a>
-          <a href="#maintenance">Maintenance</a>
+          <router-link to="/#phases">Phases</router-link>
+          <router-link to="/guide#verification">Verification</router-link>
+          <router-link to="/guide#maintenance">Maintenance</router-link>
         </nav>
         <button class="mobile-menu-btn" @click="toggleMobile">☰</button>
       </div>
       <nav class="mobile-nav" :class="{ active: showMobile }">
         <router-link to="/" @click="showMobile = false">Home</router-link>
         <router-link to="/guide" @click="showMobile = false">Full Guide</router-link>
-        <a href="#verification" @click="showMobile = false">Verification</a>
-        <a href="#maintenance" @click="showMobile = false">Maintenance</a>
+        <router-link to="/#phases" @click="showMobile = false">Phases</router-link>
+        <router-link to="/guide#verification" @click="showMobile = false">Verification</router-link>
+        <router-link to="/guide#maintenance" @click="showMobile = false">Maintenance</router-link>
       </nav>
     </div>
   </header>

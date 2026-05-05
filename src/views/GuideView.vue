@@ -16,7 +16,7 @@
             :key="phase.phase"
             class="progress-step"
           >
-            <div class="progress-step-num">{{ phase.phase }}</div>
+            <a :href="`#phase-${phase.phase}`" class="progress-step-num progress-step-link" :title="phase.title">{{ phase.phase }}</a>
             <div v-if="phase.phase < setupPhases.length" class="progress-connector"></div>
           </div>
         </div>

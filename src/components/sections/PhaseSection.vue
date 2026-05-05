@@ -1,8 +1,10 @@
 <template>
-  <div class="phase">
+  <div class="phase" :id="`phase-${phaseNumber}`">
     <div class="phase-header">
-      <span class="phase-number">{{ phaseNumber }}</span>
-      <h3>{{ title }}</h3>
+      <a :href="`#phase-${phaseNumber}`" class="phase-number phase-num-link">{{ phaseNumber }}</a>
+      <h3>
+        <a :href="`#phase-${phaseNumber}`" class="phase-title-link">{{ title }}</a>
+      </h3>
     </div>
     <div>
       <div v-for="(step, index) in steps" :key="index" class="step">
